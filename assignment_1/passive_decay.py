@@ -1,32 +1,34 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 1. Set up simulation parameters
-t_start = 0.0          # Start time (ms)
-t_end = 50.0           # End time (ms)
-dt = 0.1               # Time step (ms)
-time = np.arange(t_start, t_end, dt)
+# Parameters
+A = 60.0              # Initial peak voltage in mV
+half_life = 12.0      # Half-life in ms
+duration = 250.0      # Total duration in ms
+sampling_freq = 20000 # Sampling frequency in Hz (20,000 samples/sec = 20 samples/ms)
 
-V_rest = -70.0         # Resting membrane potential (mV)
-tau = 5.0              # Membrane time constant (ms)
-V_peak = -40.0         # Voltage right after the stimulus hits (mV)
+# Time step in milliseconds (dt = 1 / 20 = 0.05 ms)
+dt = 1.0 / (sampling_freq / 1000.0)
 
-# 2. Calculate passive voltage decay
-# Formula: V(t) = V_rest + (V_peak - V_rest) * exp(-t / tau)
-voltage = V_rest + (V_peak - V_rest) * np.exp(-time / tau)
+# Time vector from 0 to 250 ms
+t = np.arange(0, duration + dt, dt)
 
-# 3. Plot the results
-plt.figure(figsize=(8, 4))
-plt.plot(time, voltage, color='b', linewidth=2, label='Membrane Potential')
-plt.axhline(y=V_rest, color='r', linestyle='--', label='Resting Potential (-70 mV)')
+# Calculate decay constant gamma (using milliseconds)
+gamma = np.log(2) / half_life
 
-plt.title('Passive Voltage Decay of a Single Neuron')
+# Compute exponential voltage decay
+v = A * np.exp(-gamma * t)
+
+# Plotting the simulation
+plt.figure(figsize=(10, 5))
+plt.plot(t, v, label='Membrane Voltage $v(t)$', color='b', linewidth=1.5)
+plt.axvline(half_life, color='r', linestyle='--', label=f'Half-life ($t_{{1/2}}$ = {half_life} ms)')
+plt.axhline(A / 2, color='g', linestyle=':', label=f'Half-voltage ({A/2} mV)')
+
+plt.title('Passive Voltage Decay of a Single Neuron Membrane')
 plt.xlabel('Time (ms)')
-plt.ylabel('Membrane Potential (mV)')
-plt.ylim(-75, -35)
-plt.grid(True, linestyle=':', alpha=0.6)
+plt.ylabel('Voltage (mV)')
+plt.grid(True, linestyle='--', alpha=0.6)
 plt.legend()
+plt.tight_layout()
 plt.show()
-
-
-
